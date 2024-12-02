@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Nutrition Specialist Meal Planner</title>
+      <script src="https://cdn.tailwindcss.com"></script>
+      <script>
+         tailwind.config = {
+             theme: {
+                 extend: {
+                     colors: {
+                         primary: '#4F46E5',
+                         secondary: '#E5E7EB',
+                     },
+                 },
+             },
+         }
+      </script>
+   </head>
+   <body class="min-h-screen bg-gradient-to-b from-white to-gray-50 p-4 md:p-8 antialiased text-gray-900">
+      <div class="max-w-4xl mx-auto">
+         <!-- Header -->
+         <div class="text-center mb-16">
+            <h1 class="text-4xl font-bold text-gray-900 mb-4">Meal Planner</h1>
+            <p class="text-gray-600">Get personalized meal suggestions based on your preferences</p>
+         </div>
+         <!-- Main Form -->
+         <div class="bg-white rounded-3xl shadow-xl p-8 mb-16">
+            <!-- Calories Input Section -->
+            <div class="text-center mb-16">
+               <input type="number" id="calories" name="calories" placeholder="Enter calories per meal" required
+                  class="text-7xl w-full text-center border-b-2 border-gray-200 py-4 focus:outline-none focus:border-gray-400 transition-colors duration-200 placeholder-gray-300">
+            </div>
+            <!-- Diet Preferences Section -->
+            <div class="mb-16">
+               <h2 class="text-xl text-gray-500 mb-8 text-center">Diet Preferences</h2>
+               <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                  <label class="flex flex-col items-center gap-2 cursor-pointer group">
+                     <input type="radio" name="diet" value="regular" class="hidden">
+                     <div
+                        class="w-20 h-20 flex items-center justify-center rounded-2xl border-2 border-gray-200 group-hover:border-gray-400 transition-all duration-200 hover:scale-105">
+                        <span class="text-4xl">🍽️</span>
+                     </div>
+                     <span class="text-sm font-medium text-gray-700">Regular</span>
+                  </label>
+                  <label class="flex flex-col items-center gap-2 cursor-pointer group">
+                     <input type="radio" name="diet" value="vegetarian" class="hidden">
+                     <div
+                        class="w-20 h-20 flex items-center justify-center rounded-2xl border-2 border-gray-200 group-hover:border-gray-400 transition-all duration-200 hover:scale-105">
+                        <span class="text-4xl">🥗</span>
+                     </div>
+                     <span class="text-sm font-medium text-gray-700">Vegetarian</span>
+                  </label>
+                  <label class="flex flex-col items-center gap-2 cursor-pointer group">
+                     <input type="radio" name="diet" value="vegan" class="hidden">
+                     <div
+                        class="w-20 h-20 flex items-center justify-center rounded-2xl border-2 border-gray-200 group-hover:border-gray-400 transition-all duration-200 hover:scale-105">
+                        <span class="text-4xl">🌱</span>
+                     </div>
+                     <span class="text-sm font-medium text-gray-700">Vegan</span>
+                  </label>
+                  <label class="flex flex-col items-center gap-2 cursor-pointer group">
+                     <input type="radio" name="diet" value="keto" class="hidden">
+                     <div
+                        class="w-20 h-20 flex items-center justify-center rounded-2xl border-2 border-gray-200 group-hover:border-gray-400 transition-all duration-200 hover:scale-105">
+                        <span class="text-4xl">🥑</span>
+                     </div>
+                     <span class="text-sm font-medium text-gray-700">Keto</span>
+                  </label>
+               </div>
+            </div>
+            <!-- Allergies Input -->
+            <div class="mb-16">
+               <input type="text" id="allergies" name="allergies" placeholder="Enter your allergies (optional)"
+                  class="w-full text-center text-xl border-b-2 border-gray-200 py-4 focus:outline-none focus:border-gray-400 transition-colors duration-200 placeholder-gray-300">
+            </div>
+
+            <!-- OpenAI Key -->
+            <div class="mb-16">
+                <input type="text" id="api-key" name="api-key" placeholder="Enter your openAI Key" required
+                   class="w-full text-center text-xl border-b-2 border-gray-200 py-4 focus:outline-none focus:border-gray-400 transition-colors duration-200 placeholder-gray-300">
+             </div>
+
+            <!-- Generate Button -->
+            <button type="button" id="generate-meals"
+               class="w-full max-w-md mx-auto block bg-black text-white py-4 px-8 rounded-2xl font-medium hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 transition-all duration-200 hover:scale-105">
+            Generate Meal Plan
+            </button>
+         </div>
+         <!-- Results Section -->
+         <div id="meal-results" class="border-t border-gray-100 pt-12">
+            <div id="meals-container" class="space-y-8">
+               <!-- Meals will be inserted here -->
+            </div>
+         </div>
+      </div>
+      <script>
+         const mealSuggestions = {
+            regular: [{
+                    emoji: '🍗',
+                    title: 'Grilled Chicken Bowl',
+                    description: 'A perfectly balanced meal featuring lean protein and complex carbs',
+                    ingredients: [{
+                            name: 'Grilled chicken breast',
+                            amount: '200g',
+                            calories: 330,
+                            emoji: '🍗'
+                        },
+                        {
+                            name: 'Quinoa',
+                            amount: '100g',
+                            calories: 120,
+                            emoji: '🌾'
+                        },
+                        {
+                            name: 'Mixed vegetables',
+                            amount: '150g',
+                            calories: 50,
+                            emoji: '🥦'
+                        }
+                    ]
+                },
+                {
+                    emoji: '🐟',
+                    title: 'Baked Salmon Plate',
+                    description: 'Omega-3 rich salmon with nutritious sides',
+                    ingredients: [{
+                            name: 'Wild-caught salmon',
+                            amount: '180g',
+                            calories: 370,
+                            emoji: '🐟'
+                        },
+                        {
+                            name: 'Sweet potato mash',
+                            amount: '150g',
+                            calories: 130,
+                            emoji: '🍠'
+                        },
+                        {
+                            name: 'Steamed broccoli',
+                            amount: '100g',
+                            calories: 35,
+                            emoji: '🥦'
+                        }
+                    ]
+                }
+            ],
+            vegetarian: [{
+                emoji: '🥗',
+                title: 'Buddha Bowl',
+                description: 'A nourishing bowl of plant-based goodness',
+                ingredients: [{
+                        name: 'Quinoa',
+                        amount: '100g',
+                        calories: 120,
+                        emoji: '🌾'
+                    },
+                    {
+                        name: 'Roasted chickpeas',
+                        amount: '100g',
+                        calories: 164,
+                        emoji: '🫘'
+                    },
+                    {
+                        name: 'Mixed vegetables',
+                        amount: '200g',
+                        calories: 70,
+                        emoji: '🥬'
+                    }
+                ]
+            }],
+            vegan: [{
+                emoji: '🌱',
+                title: 'Tempeh Power Bowl',
+                description: 'Plant-based protein with wholesome grains',
+                ingredients: [{
+                        name: 'Marinated tempeh',
+                        amount: '150g',
+                        calories: 240,
+                        emoji: '🌱'
+                    },
+                    {
+                        name: 'Brown rice',
+                        amount: '100g',
+                        calories: 111,
+                        emoji: '🍚'
+                    },
+                    {
+                        name: 'Avocado',
+                        amount: '50g',
+                        calories: 80,
+                        emoji: '🥑'
+                    }
+                ]
+            }],
+            keto: [{
+                emoji: '🥑',
+                title: 'Avocado Delight',
+                description: 'High-fat, low-carb perfection',
+                ingredients: [{
+                        name: 'Chicken breast',
+                        amount: '200g',
+                        calories: 330,
+                        emoji: '🍗'
+                    },
+                    {
+                        name: 'Avocado',
+                        amount: '100g',
+                        calories: 160,
+                        emoji: '🥑'
+                    },
+                    {
+                        name: 'Mixed greens',
+                        amount: '100g',
+                        calories: 25,
+                        emoji: '🥬'
+                    }
+                ]
+            }]
+        };
+
+        // Handle radio button selection styling
+        document.querySelectorAll('input[type="radio"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                document.querySelectorAll('input[type="radio"] + div').forEach(div => {
+                    div.classList.remove('border-gray-900', 'bg-gray-50');
+                    div.classList.add('border-gray-200');
+                });
+                if (this.checked) {
+                    this.nextElementSibling.classList.remove('border-gray-200');
+                    this.nextElementSibling.classList.add('border-gray-900', 'bg-gray-50');
+                }
+            });
+        });
+
+        document.getElementById('generate-meals').addEventListener('click', async () => {
+            const calories = document.getElementById('calories').value;
+            const diet = document.querySelector('input[name="diet"]:checked')?.value || "regular";
+            const allergies = document.getElementById('allergies').value;
+            let apiKey = document.getElementById('api-key').value;
+
+            if (!calories) {
+                alert("Please enter the calories per meal.");
+                return;
+            }
+
+            const mealsContainer = document.getElementById('meals-container');
+            mealsContainer.innerHTML = `
+                        <div class="flex items-center justify-center space-x-2 animate-pulse">
+                            <div class="w-4 h-4 bg-gray-300 rounded-full"></div>
+                            <div class="w-4 h-4 bg-gray-300 rounded-full"></div>
+                            <div class="w-4 h-4 bg-gray-300 rounded-full"></div>
+                            <span class="text-gray-500">Generating your personalized meal plan...</span>
+                        </div>
+                    `;
+
+            try {
+                displayMeals(mealSuggestions[diet], calories);
+
+                const prompt = `
+                            As a nutrition specialist, suggest two halal meals based on:
+                            - Target: ${calories} calories per meal
+                            - Diet: ${diet || 'none'}
+                            - Allergies: ${allergies || 'none'}
+                            
+                            Format: {emoji} | {title} | Ingredients: • {ingredient} ({amount}, {calories} cal) [repeat for each ingredient]
+                            
+                            Include 3-4 ingredients per meal with specific amounts and calories.
+                            Use relevant food emojis for each ingredient.
+                        `;
+
+                const response = await fetch("https://api.openai.com/v1/chat/completions", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${apiKey}`
+                    },
+                    body: JSON.stringify({
+                        model: "gpt-4",
+                        messages: [{
+                            role: "system",
+                            content: prompt
+                        }],
+                        max_tokens: 500,
+                        temperature: 0.7
+                    }),
+                });
+
+                const data = await response.json();
+                if (data.choices && data.choices[0]) {
+                    displayAISuggestions(data.choices[0].message.content, calories);
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                mealsContainer.innerHTML = `
+                            <div class="text-center p-8 bg-red-50 rounded-2xl">
+                                <p class="text-red-600">Could not fetch AI suggestions. Showing template meals only.</p>
+                            </div>
+                        `;
+            }
+        });
+
+        function displayMeals(meals, calories) {
+            const mealsContainer = document.getElementById('meals-container');
+            mealsContainer.innerHTML = '<h3 class="text-2xl font-light mb-8 text-gray-700">Curated Suggestions (Loading AI Suggestions...)</h3>';
+
+            meals.forEach(meal => {
+                // Ensure ingredients array is defined and calculate total calories
+                const totalCalories = Array.isArray(meal.ingredients) ?
+                    meal.ingredients.reduce((sum, ing) => sum + ing.calories, 0) :
+                    0;
+
+                const mealDiv = document.createElement('div');
+                mealDiv.className = 'bg-white p-8 rounded-2xl border border-gray-100 hover:border-gray-300 transition-all duration-300 shadow-sm hover:shadow-lg mb-8';
+
+                const ingredientsList = Array.isArray(meal.ingredients) ?
+                    meal.ingredients.map(ing => `
+                        <div class="animate-pulse flex items-center gap-2 text-gray-600">
+                            <span>${ing.emoji}</span>
+                            <span>${ing.name}</span>
+                            <span class="text-gray-400">${ing.amount}</span>
+                            <span class="text-gray-400"> - ${ing.calories} cal</span>
+                        </div>
+                    `).join('') :
+                    '<p class="text-gray-500">No ingredients available</p>';
+
+                mealDiv.innerHTML = `
+                    <div class="flex items-center gap-4 mb-4">
+                        <span class="text-5xl">${meal.emoji}</span>
+                        <div class="flex-1">
+                            <h3 class="text-xl font-medium text-gray-900">${meal.title}</h3>
+                            <p class="text-sm text-gray-500">${totalCalories} calories total</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-600 mb-4">${meal.description}</p>
+                    <div class="space-y-2">
+                        <h4 class="font-medium text-gray-700">Ingredients:</h4>
+                        ${ingredientsList}
+                    </div>
+                    <div class="mt-6 pt-4 border-t border-gray-50">
+                        <div class="flex flex-wrap gap-2">
+                            <span class="bg-gray-50 px-3 py-1 rounded-full text-sm text-gray-600">Balanced</span>
+                            <span class="bg-gray-50 px-3 py-1 rounded-full text-sm text-gray-600">Nutritionist Approved</span>
+                        </div>
+                    </div>
+                `;
+                mealsContainer.appendChild(mealDiv);
+            });
+        }
+
+        function displayAISuggestions(suggestionsText, targetCalories) {
+            const mealsContainer = document.getElementById('meals-container');
+
+            // Display loader animation
+            mealsContainer.innerHTML = `
+                <div class="flex items-center justify-center space-x-2 animate-pulse">
+                    <div class="w-4 h-4 bg-gray-300 rounded-full"></div>
+                    <div class="w-4 h-4 bg-gray-300 rounded-full"></div>
+                    <div class="w-4 h-4 bg-gray-300 rounded-full"></div>
+                    <span class="text-gray-500">Loading AI suggestions...</span>
+                </div>
+                `;
+
+            try {
+                // Validate suggestionsText
+                if (!suggestionsText || typeof suggestionsText !== 'string') {
+                    throw new Error('Invalid AI suggestions format');
+                }
+
+                // Split suggestions into individual meals
+                const suggestions = suggestionsText.split('\n\n').filter(line => line.trim());
+                if (suggestions.length === 0) {
+                    throw new Error('No valid AI suggestions found');
+                }
+
+                // Clear loader and display AI suggestions
+                mealsContainer.innerHTML = `
+                    <h3 class="text-2xl font-light mb-8 text-gray-700">AI-Generated Suggestions</h3>
+                `;
+                suggestions.forEach(suggestion => {
+                    // Split into parts: emoji | title | ingredients
+                    const [emojiAndTitle, ingredientsSection] = suggestion.split('| Ingredients:');
+                    if (!emojiAndTitle || !ingredientsSection) {
+                        console.warn('Skipping malformed suggestion:', suggestion);
+                        return;
+                    }
+
+                    const [emoji, title] = emojiAndTitle.split('|').map(part => part.trim());
+                    if (!emoji || !title) {
+                        console.warn('Missing emoji or title in suggestion:', suggestion);
+                        return;
+                    }
+
+                    // Parse ingredients
+                    const ingredients = ingredientsSection
+                        .split('\n')
+                        .filter(line => line.startsWith('•'))
+                        .map(ingredientLine => {
+                            const match = ingredientLine.match(/•\s*(.*?)\s*\((.*?),\s*(\d+)\s*cal\)/);
+                            return match ?
+                                {
+                                    name: match[1].trim(),
+                                    amount: match[2].trim(),
+                                    calories: parseInt(match[3]),
+                                } :
+                                null;
+                        })
+                        .filter(Boolean);
+
+                    // Handle empty ingredients
+                    if (ingredients.length === 0) {
+                        console.warn('No ingredients parsed for suggestion:', suggestion);
+                    }
+
+                    // Calculate total calories
+                    const totalCalories = ingredients.reduce((sum, ingredient) => sum + ingredient.calories, 0);
+
+                    // Create meal suggestion element
+                    const mealDiv = document.createElement('div');
+                    mealDiv.className = 'bg-white p-8 rounded-2xl border border-gray-100 hover:border-gray-300 transition-all duration-300 shadow-sm hover:shadow-lg mb-8';
+
+                    const ingredientsList = ingredients.map(ingredient => `
+                                <div class="flex items-center gap-2 text-gray-600">
+                                    <span>${ingredient.name}</span>
+                                    <span class="text-gray-400">${ingredient.amount}</span>
+                                    <span class="text-gray-400"> - ${ingredient.calories} cal</span>
+                                </div>
+                            `).join('');
+
+                    mealDiv.innerHTML = `
+                        <div class="flex items-center gap-4 mb-4">
+                            <span class="text-5xl">${emoji}</span>
+                            <div class="flex-1">
+                                <h3 class="text-xl font-medium text-gray-900">${title}</h3>
+                                <p class="text-sm text-gray-500">${totalCalories} calories total</p>
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <h4 class="font-medium text-gray-700">Ingredients:</h4>
+                            ${ingredientsList}
+                        </div>
+                        <div class="mt-6 pt-4 border-t border-gray-50">
+                            <div class="flex flex-wrap gap-2">
+                                <span class="bg-gray-50 px-3 py-1 rounded-full text-sm text-gray-600">AI Generated</span>
+                                <span class="bg-gray-50 px-3 py-1 rounded-full text-sm text-gray-600">Personalized</span>
+                            </div>
+                        </div>
+                    `;
+                    mealsContainer.appendChild(mealDiv);
+                });
+            } catch (error) {
+                console.error('Error processing AI suggestions:', error.message);
+                mealsContainer.innerHTML = `
+                    <div class="text-center p-8 bg-red-50 rounded-2xl">
+                        <p class="text-red-600">Failed to generate AI suggestions. Please try again later.</p>
+                    </div>
+                `;
+            }
+        }
+      </script>
+   </body>
+</html>
