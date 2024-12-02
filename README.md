@@ -4,6 +4,8 @@
 
 The Nutrition Specialist Meal Planner is an interactive web application that helps users generate personalized meal suggestions based on their dietary preferences, calorie requirements, and potential allergies. The app combines pre-configured meal templates with AI-generated recommendations to provide flexible and tailored nutrition plans.
 
+[APP](https://moumen-soliman.github.io/meal-planner-AI/)
+
 ## Features
 
 ### 🔑 Key Capabilities
